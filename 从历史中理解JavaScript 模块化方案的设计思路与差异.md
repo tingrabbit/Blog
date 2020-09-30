@@ -62,7 +62,7 @@ UMD 解决方案使得经过 webpack 打包之后的代码具有跨平台运行�
 
 babel 对使用 ESM 规范的导入导出统一编译成 AMD 规范的导入导出，这样我们在项目中混用`import` 与 `require`，不用对应依赖模块的导出方法，也不会出现问题了。
 
-babel 会对 ESM 规范导出的模块，会给导出对象一个`__esModule`的标示，用以标示使用 ESM 规范到处的模块。导入时，会判断是否存在`__esModule`属性，以对 ESM 规范和 AMD 规范导出的模块分别做不同的处理。
+babel 会给 ESM 规范导出的模块对象一个`__esModule`的标示，用以标示使用 ESM 规范导出的模块。导入时，会判断是否存在`__esModule`属性，以对 ESM 规范和 AMD 规范导出的模块分别做不同的处理。
 
 ### 3. 为什么需要前端模块化
 
@@ -98,3 +98,10 @@ JavaScript 早期作为一门轻量级脚本语言，并没有依赖管理的概
   - AMD 模块以浏览器第一的原则发展，异步加载模块。
   - CommonJS 模块以服务器第一原则发展，选择同步加载，它的模块无需包装(unwrapped modules)。
   - UMD 先判断是否支持 Node.js 的模块（exports）是否存在，存在则使用 Node.js 模块模式。再判断是否支持 AMD（define 是否存在），存在则使用 AMD 方式加载模块。
+
+---
+
+_参考文献_
+
+- _[AMD , CMD, CommonJS，ES Module，UMD](https://juejin.im/post/6844903663404580878)_
+- _[《编程时间简史系列》JavaScript 模块化的历史进程](https://segmentfault.com/a/1190000023017398)_
