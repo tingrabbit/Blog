@@ -14,6 +14,8 @@ const _ = require('loash');
 2. 如果分属与不同的规范，好像有听说过不能同时使用的传闻
 3. 为什么需要模块化？
 
+# 解惑
+
 ### 1. `import` 与 `require`
 
 #### ESM
@@ -70,9 +72,104 @@ JavaScript 早期作为一门轻量级脚本语言，并没有依赖管理的概
 
 在官方提供 ESM 规范之前，开发者们推出了自己的模块化规范解决方案，这些规范提供了 ESM 实现思路，推动了 JavaScript 语言的发展，也造成了多种模块化并存的情况。对于现在的开发者来说，由于 babel 这类的编译工具的存在，可以不用关心模块化的兼容问题。
 
+# 模块化方案使用指南
+
+我们知道 AMD 和 CMD 设计的规范有一点不一样，也知道 ESM 作为官方的模块化解决方案应该是面向未来的，那它们的在使用上到底有什么不一样呢？
+
+## RequireJs/AMD
+
+AMD 是 RequireJS 实践中总结的规范，RequireJS 的使用
+
+- 定义模块：`define(id?, dependencies?, factory) `
+- 引入模块：`require([module], factory)`
+
+`define`定义模块时提供了很多方式
+
+1. `id`作为第一个参数，代表模块名，可以不填写，默认使用文件名
+2. `dependencies`作为第二个参数，代表依赖模块，如果没有依赖模块，可以不填，默认依赖模块有`[require,exports,module]`
+3. `factory`作为一个函数，其参数顺序和值与`dependencies`中的依赖模块导出的值一一对应
+
+根据上面的特性，可以书写以下导出模块的例子
+
+```JavaScript
+// 模块a.js，没有依赖模块，导出字符串'a'
+define(function(require, exports, module) {
+    // 可以直接return, 也可以使用exports/module.exports导出对象
+    return 'a';
+})
+
+// 模块b.js，没有依赖模块，导出对象{ name: 'b' }
+define(function(require, exports, module) {
+    // 可以直接return, 也可以使用exports/module.exports导出对象
+    // exports.name = 'b';
+    // module.exports = { name: 'b' };
+    return { name: 'b' };
+})
+
+// 模块c.js，有依赖模块a，导出对象{ name: 'c' }
+define(['./a.js'], function(a) {
+    // 函数参数与依赖模块相关
+    console.log(a);
+    return { name: 'c' };
+})
+// 模块c.js的另一种写法，使用require引入
+define(function(require, exports, module) {
+    const a = require('./a.js');
+    console.log(a);
+    module.exports = { name: 'c' };
+})
+
+// 模块d.js，有依赖模块b，导出对象{ name: 'd' }
+define(['./b.js'], function(b) {
+    // 函数参数与依赖模块相关
+    console.log(b.name);
+    return { name: 'd' };
+})
+
+```
+
+导入模块如下
+
+```JavaScript
+// index.js
+require(['./a.js', './b.js'], function(a, b) {
+    console.log(a, b.name);
+})
+```
+
+## SeaJS/CMD
+
+- 定义模块：`define(factory)`
+- factory 有三个函数参数：`require`, `exports`, `module`
+- 暴露 api 方法可以使用与 RequireJs 一致，若是未暴露，则返回`{}`，RequireJs 返回`undefined`
+- 会调用`factory`的`toString`方法对其进行正则匹配以此分析依赖，所以注释中的`require`也会被误解为需要引入的依赖
+- 依赖会预先下载但延迟执行
+
+下面看看例子
+
+```JavaScript
+// 模块e.js，依赖a.js和b.js，我们假设a、b模块都已经使用CMD重写
+define(function(require, exports, module) {
+    var a = require('./a.js');
+    console.log(a);
+    var b = require('./b.js');
+    console.log(b.name);
+})
+```
+
+> 这样看来，模块 e 的写法在 RequireJs 中也可以写成一摸一样的代码，是否意味着 RequireJs 是可以延迟加载、就近声明（就近依赖）的呢？答案是不是的，还记得 var 的变量提升吗？RequireJs 中使用`require`导入的模块也会进行提升，最后执行结果是提前加载。
+
+## ESM
+
+ESM 相信大家都用过，这里就不赘述了，但是前文中说过
+
+> babel 对使用 ESM 规范的导入导出统一编译成 AMD 规范的导入导出
+
+但是随着时间的推移，无论是 AMD 还是 UMD 终将成为历史，而 ESM 才是面向未来的。Vue 的作者尤大大正在鼓捣的工具`vite`,是一个基于浏览器原生 ESM 的开发服务器。有兴趣的可以在下方的参考链接中查看。
+
 # 结束语
 
-[最后放出一个来自掘金的差异总结](https://juejin.im/post/6844903663404580878)
+差异总结
 
 - AMD 与 CMD：
 
@@ -105,3 +202,4 @@ _参考文献_
 
 - _[AMD , CMD, CommonJS，ES Module，UMD](https://juejin.im/post/6844903663404580878)_
 - _[《编程时间简史系列》JavaScript 模块化的历史进程](https://segmentfault.com/a/1190000023017398)_
+- _[是什么让尤大选择放弃 webpack?](https://mp.weixin.qq.com/s/mb20GHGeDJF3bGuIhJaK1Q)_
