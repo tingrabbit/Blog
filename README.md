@@ -21,4 +21,4 @@
 - [TypeScript学习笔记](https://github.com/tingrabbit/Blog/blob/master/TypeScript%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%8E%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5%EF%BC%88%E4%B8%80%EF%BC%89.md)
   - [第一部分](https://github.com/tingrabbit/Blog/blob/master/TypeScript%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%8E%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5%EF%BC%88%E4%B8%80%EF%BC%89.md)
 
-> 网易云笔记图片不用他家产品展示不出来了，这也太D区了，已经取消vip了，看来要换图片地址和写作工具了——2020.10.13
+> 网易云笔记图片不用他家产品展示不出来了，这也太D区了。已经取消vip，还要换图片地址和写作工具——2020.10.13
