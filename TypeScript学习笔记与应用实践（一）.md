@@ -63,7 +63,7 @@ people.toString();
 
 - Unknown 类型
 
-我们知道 `any` 可以表示任何类型,但是这样会削弱 `ts` 规范类型,避免错误的作用。为了解决 `any` 带来的问题，TypeScript 3.0 引入了 `unknown` 类型来表示不知道是什么类型的意思。`unknown` 类型有以下特性
+我们知道 `any` 可以表示任何类型,但是这样会削弱 ts 规范类型,避免错误的作用。为了解决 `any` 带来的问题，TypeScript 3.0 引入了 `unknown` 类型来表示不知道是什么类型的意思。`unknown` 类型有以下特性
 
 1. `unknown` 类型可以使用任何类型来赋值（既然变量不知道是什么类型，我就可以为所欲为了）
 
@@ -83,7 +83,7 @@ value = 1;
 const count: number = value;
 ```
 
-个人觉得使用场景在某个变量可能是存在多个类型的，unkown 类型可以帮助我们标示出变量可能有多个类型，当我们要对特定变量处理的时候，可以使用类型守卫(具体在下文解释)让满足类型变量的条件通过。
+个人觉得使用场景在某个变量可能是存在多个类型的，`unkown`类型可以帮助我们标示出变量可能有多个类型，当我们要对特定变量处理的时候，可以使用类型守卫(具体在下文解释)让满足类型变量的条件通过。
 
 ```typescript
 let value: unknown;
@@ -126,9 +126,9 @@ tupleType = ["semlinker", true];
 
 - Never 类型
 
-Never 类型代表永远不会存在的值的类型，比如没有返回值的函数。在实际应用中，我发现这个类型也可以用来排查错误。当我们对数据进行一系列操作时，TypeScript 提示某个变量时 never 类型，但这个类型不应该是 never 类型时，可以知道在代码中我们可能进行了错误的操作。
+`Never`类型代表永远不会存在的值的类型，比如没有返回值的函数。在实际应用中，我发现这个类型也可以用来排查错误。当我们对数据进行一系列操作时，TypeScript 提示某个变量是`never`类型，但这个类型不应该是`never`类型时，可以知道在代码中我们可能进行了错误的操作。
 
-Never 类型还有一种我没有用过的~~高级~~用法，用于检查联合类型。下面查看一下代码。
+`Never`类型还有一种我没有用过的~~高级~~用法，用于检查联合类型。下面查看一下代码。
 
 ```typescript
 type Foo = string | number;
@@ -145,13 +145,13 @@ function controlFlowAnalysisWithNever(foo: Foo) {
 }
 ```
 
-这里 Foo 是一个联合类型（联合类型就是可以是几种类型中的一种），以上代码编译后不会出错，但是一旦这个 Foo 被他人修改
+这里`Foo`是一个联合类型（联合类型就是可以是几种类型中的一种），以上代码编译后不会出错，但是一旦这个`Foo`被他人修改
 
 ```typescript
 type Foo = string | number | boolean;
 ```
 
-那么条件判断里最后的 never 类型赋值就会被 TypeScript 报红提示错误。通过 TypeScript 类型对比有助于减少 bug 数量的产出。
+那么条件判断里最后的`never`类型赋值就会被 TypeScript 报红提示错误。通过 TypeScript 类型对比有助于减少 bug 数量的产出。
 
 ## 2. 断言
 
@@ -239,6 +239,8 @@ function initialize() {
 
 > `string`守卫: 这条路只能由类型为`string`的通过！number 守卫：俺只给`number`类型放行。Cat 类守卫：喵喵喵。喵？
 
+### 三个传统守卫：`in/typeof/instanceof`
+
 为了方便理解，举个例子
 
 ```typescript
@@ -261,6 +263,8 @@ typeGuard({ type: "a", value: "typea" });
 
 这里举了三守卫中的`in`,剩余两种的用法也基本一致，其本质都是 TypeScript 根据语法分析进行了类型的收窄，那么在进行类型检查时，就会符合 JavaScript 原有的类型判断效果。
 
+### 类型谓词
+
 使用三守卫可以覆盖大多数的类型守卫场景，但也有无法覆盖的场景，举个例子
 
 ```typescript
@@ -280,7 +284,7 @@ interface Dog {
 type Animal = Cat | Dog;
 ```
 
-如上代码，我们无法通过三守卫在 Animal 类型中区分出 Cat 类型和 Dog 类型，这时候可以使用类型谓词来自定义类型守卫
+如上代码，我们无法通过三守卫在`Animal`类型中区分出`Cat`类型和`Dog`类型，这时候可以使用类型谓词来自定义类型守卫
 
 ```typescript
 function isTinaCat(animal: Animal): animal is Cat {
@@ -294,7 +298,7 @@ function isTinaDog(animal: Animal): animal is Dog {
 
 上面两个函数有点像平时我们用于判断符合某种条件的通用方法，只是这个函数的返回值类型有点特别，它不是任何类型，它是一个使用了谓语的语句。具体形式为：函数参数 is 类型名，称之为类型谓语。
 
-类型谓语用于标示该函数是一个类型保护的函数，返回 true 表示符合某种类型，反之不符合。
+类型谓语用于标示该函数是一个类型保护的函数，返回`true`表示符合某种类型，反之不符合。
 
 下面使用是类型谓语的具体使用例子
 
