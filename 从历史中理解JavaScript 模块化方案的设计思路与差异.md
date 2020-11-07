@@ -52,7 +52,6 @@ const _ = require('loash');
 
 1. 优先判断是否存在 `exports` 方法，如果存在，则采用 `CommonJS` 方式加载模块；
 2. 其次判断是否存在 `define` 方法，如果存在，则采用 `AMD` 方式加载模块；
-3. 最后判断 `global` 对象上是否定义了所需依赖，如果存在，则直接使用；反之，则抛出异常。
 
 UMD 解决方案使得经过 webpack 打包之后的代码具有跨平台运行的特性，成为更加通用的前端模块化解决方案。
 
@@ -75,6 +74,66 @@ JavaScript 早期作为一门轻量级脚本语言，并没有依赖管理的概
 # 模块化方案使用指南
 
 我们知道 AMD 和 CMD 设计的规范有一点不一样，也知道 ESM 作为官方的模块化解决方案应该是面向未来的，那它们的在使用上到底有什么不一样呢？
+
+## CommonJs
+
+前面说到`CommonJs`是用于`nodeJs`模块化解决方案，这里就不自己写使用了，通过webpack可以对代码进行打包，打包时可以选择打包出来的库模块化方案。简单的`npm -init` 和安装`webpack webpack-cli`依赖包之后，在`webpack.config.js`文件里进行 webpack 配置，配置如下
+```JavaScript
+module.exports = {
+  entry: "./src/index.js",
+  output: {
+    filename: "./index.js",
+    libraryTarget: "commonjs2",
+    library: "add",
+  },
+};
+```
+
+这里定义了入口文件为src目录下的index文件，然后创建该文件并如下书写
+```JavaScript
+// ./src/index.js
+let a = require("./a-module");
+module.exports = a(1, 2);
+```
+
+index文件引入了当前文件夹的a-module文件，我们创建并如下书写
+```JavaScript
+// ./src/a-module.js
+module.exports = function add(a, b) {
+  return a + b;
+};
+
+```
+
+以上，我们完成了webpack打包配置，一个输出的a模块文件，一个引入了a模块的文件，并再次导出为模块的index文件。
+
+接下来，运行`npx webpack`进行打包，打包出来的文件便是使用`commonJs`进行模块化的文件,对打包文件进行格式化后如下：
+
+```JavaScript
+// ./dist/index.js
+module.exports.add = (() => {
+  var r = {
+      300: (r) => {
+        r.exports = function (r, t) {
+          return r + t;
+        };
+      },
+      138: (r, t, e) => {
+        let o = e(300);
+        r.exports = o(1, 2);
+      },
+    },
+    t = {};
+  return (function e(o) {
+    if (t[o]) return t[o].exports;
+    var n = (t[o] = { exports: {} });
+    return r[o](n, n.exports, e), n.exports;
+  })(138);
+})();
+
+```
+
+可以看到模块导出标志为`module.export`，导入这里看不到，在`commonJs`中，导入是使用`require`关键字进行导入
 
 ## RequireJs/AMD
 
@@ -158,6 +217,50 @@ define(function(require, exports, module) {
 ```
 
 > 这样看来，模块 e 的写法在 RequireJs 中也可以写成一摸一样的代码，是否意味着 RequireJs 是可以延迟加载、就近声明（就近依赖）的呢？答案是不是的，还记得 var 的变量提升吗？RequireJs 中使用`require`导入的模块也会进行提升，最后执行结果是提前加载。
+
+## UMD
+
+使用webpck对上文commonjs使用指南重新进行打包，打包方式为umd，打包后的文件为
+```JavaScript
+!(function (e, t) {
+  // 判断是否能使用commonjs模块化方案
+  "object" == typeof exports && "object" == typeof module
+    // 使用commonjs模块化方案，供nodejs使用
+    ? (module.exports = t())
+    // 判断是否能使用amd规范
+    : "function" == typeof define && define.amd
+    // 使用requireJs模块化解决方案
+    ? define([], t)
+    // 其他，导出形式符合commonjs规范
+    : "object" == typeof exports
+    // 符合commonjs规范
+    ? (exports.add = t())
+    // 挂在self上
+    : (e.add = t());
+})(self, function () {
+  return (
+    (e = {
+      300: (e) => {
+        e.exports = function (e, t) {
+          return e + t;
+        };
+      },
+      138: (e, t, o) => {
+        let r = o(300);
+        e.exports = r(1, 2);
+      },
+    }),
+    (t = {}),
+    (function o(r) {
+      if (t[r]) return t[r].exports;
+      var n = (t[r] = { exports: {} });
+      return e[r](n, n.exports, o), n.exports;
+    })(138)
+  );
+  var e, t;
+});
+```
+
 
 ## ESM
 
